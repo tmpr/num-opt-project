@@ -2,7 +2,9 @@
 File containing all 4 of the minimizers and the `Minimizer` base-class.
 """
 
+from abc import abstractmethod, abstractproperty
 from dataclasses import dataclass
+from sys import float_repr_style
 import numpy as np
 from numpy.lib.utils import who
 from function_object import Function
@@ -18,7 +20,7 @@ FAIL = Path('reports/fail')
 
 class Minimizer:
     tolerance = 1e-2
-    max_iter = 10_000
+    max_iter = 1000
     step_search_tolerance = 50
 
     def __init__(self, function: Function, x_0: np.array, c=0.4, step_decay=0.8):
@@ -33,7 +35,11 @@ class Minimizer:
         self.x = x_0
 
     def minimize(self):
-        
+        """Minimize towards one of the (local) minimizers.
+
+        Raises:
+            TimeoutError: If the tolerance is not achieved within the class-defined number of maximum iterations.
+        """
         for i in range(Minimizer.max_iter):
             
 
@@ -58,6 +64,7 @@ class Minimizer:
         self.x += step_length * direction
 
     def generate_analytics(self) -> None:
+        """Generate Plot to inspect optimization process."""
         fig = px.line(data_frame=pd.DataFrame.from_dict(self.history), 
                       title="Optimization History of "+self.__class__.__name__)
         
@@ -66,14 +73,24 @@ class Minimizer:
         fig.write_html(str(directory / (self.__class__.__name__ +  str(datetime.now()) + '.html')))
 
     @property
-    def distance(self):
+    def distance(self) -> float:
+        """Least distance of current x to one of the known minimizers."""
         return min(np.linalg.norm(self.x - minimizer) for minimizer in self.f.minimizers)
 
     @property
-    def direction(self): 
-        raise NotImplementedError("Cannot call from base Minimizer.")
+    @abstractmethod
+    def direction(self) -> np.array: pass
 
-    def step_length(self, p: np.array, alpha=1):
+    def step_length(self, p: np.array, alpha=1.) -> float:
+        """Compute step length according to the book.
+
+        Args:
+            p (np.array): Direction
+            alpha (int, optional): Initial step length. Defaults to 1.
+
+        Returns:
+            float: Step length
+        """
         x = self.x
         for i in range(__class__.step_search_tolerance):
         
@@ -88,6 +105,11 @@ class Minimizer:
         return alpha
 
     def has_converged(self) -> bool:
+        """Check if optimizer has converged.
+
+        Returns:
+            bool: Whether or not x is very close to minimizer.
+        """
         return self.distance <= __class__.tolerance
 
 
@@ -106,7 +128,7 @@ class QuasiNewtonMinimizer(Minimizer):
         self.H = -np.linalg.inv(self.f.hessian(self.x))
 
     @property
-    def direction(self):
+    def direction(self) -> np.array:
         return -self.H @ self.f.gradient(self.x)
 
     def step(self, step_length: float, direction: np.array) -> None:
@@ -133,11 +155,11 @@ class QuasiNewtonMinimizer(Minimizer):
 class ConjugateGradientMinimizer(Minimizer):
 
     @property
-    def direction(self):
+    def direction(self) -> np.array:
         pass
 
 class SteepestDescentMinimizer(Minimizer):
-
+    tolerance = 0.1
     @property
-    def direction(self):
+    def direction(self) -> np.array:
         return -self.f.gradient(self.x)
