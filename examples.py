@@ -3,7 +3,7 @@ from function_object import Function, MatrixFunction, MatrixGrad, MatrixConstant
 
 np.random.seed(42)
 
-UNIVARIATE = [
+BIVARIATE = [
     Function(
         f = lambda x: x[0]**2 + x[1]**4,
         gradient = lambda x: np.array([2.*x[0], 2.*x[1]]),
