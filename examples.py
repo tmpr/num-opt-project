@@ -13,7 +13,7 @@ UNIVARIATE = [
 ]
 
 GENERATING_MATRICES = [
-   np.random.uniform(-2, 2, size=(n, n)) for n in range(2, 5, 1)
+   np.random.uniform(-100, 100, size=(n, n)) for n in range(10, 20, 5)
 ]
 
 POS_DEF_MATRICES = [X.T @ X for X in GENERATING_MATRICES]
