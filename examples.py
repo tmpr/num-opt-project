@@ -8,12 +8,12 @@ UNIVARIATE = [
         f = lambda x: x[0]**2 + x[1]**4,
         gradient = lambda x: np.array([2.*x[0], 2.*x[1]]),
         hessian = lambda x: np.array([[2., 0.], [0., 2.]]),
-        minimizer= np.array([0., 0.])
+        minimizers= [np.array([0., 0.])]
     )
 ]
 
 GENERATING_MATRICES = [
-   np.random.uniform(-100, 100, size=(n, n)) for n in range(10, 20, 5)
+   np.random.uniform(-100, 100, size=(n, n)) for n in range(10, 20, 2)
 ]
 
 POS_DEF_MATRICES = [X.T @ X for X in GENERATING_MATRICES]
@@ -27,7 +27,7 @@ MULTIVARIATE = [
         f = MatrixFunction(A, b),
         gradient = MatrixGrad(A, b),
         hessian = MatrixConstant(A),
-        minimizer = x_bar
+        minimizers = [x_bar]
     )
     for A, x_bar, b in zip(POS_DEF_MATRICES, VECTORS, BEES)
 ]

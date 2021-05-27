@@ -40,7 +40,7 @@ class Minimizer:
             direction = self.direction
             step_length = self.step_length(direction)
             
-            self.history["L2 Distance to Min"].append(float(self.distance(self.x)))
+            self.history["L2 Distance to Min"].append(float(self.distance))
             self.history["Step Length"].append(step_length)
             self.history["Direction Magnitude"].append(np.linalg.norm(direction))
 
@@ -51,7 +51,7 @@ class Minimizer:
             self.step(step_length, direction)
 
         self.generate_analytics()
-        raise TimeoutError(f"Minimizer did not converge within {Minimizer.max_iter} steps. Distance: {self.distance(self.x)}")
+        raise TimeoutError(f"Minimizer did not converge within {Minimizer.max_iter} steps. Distance: {self.distance}")
 
 
     def step(self, step_length: float, direction: np.array) -> None:
@@ -65,8 +65,9 @@ class Minimizer:
 
         fig.write_html(str(directory / (self.__class__.__name__ +  str(datetime.now()) + '.html')))
 
-    def distance(self, x):
-        return np.linalg.norm(self.x - self.f.minimizer)
+    @property
+    def distance(self):
+        return min(np.linalg.norm(self.x - minimizer) for minimizer in self.f.minimizers)
 
     @property
     def direction(self): 
@@ -87,7 +88,7 @@ class Minimizer:
         return alpha
 
     def has_converged(self) -> bool:
-        return np.linalg.norm(self.x - self.f.minimizer) <= __class__.tolerance
+        return self.distance <= __class__.tolerance
 
 
 class NewtonMinimizer(Minimizer):

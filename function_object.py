@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 import numpy as np
 from dataclasses import dataclass
 
@@ -7,7 +7,7 @@ class Function:
     f: Callable
     gradient: Callable
     hessian: Callable
-    minimizer: np.array
+    minimizers: List[np.array]
 
     def __call__(self, x: np.array):
         return self.f(x)

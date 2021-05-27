@@ -16,7 +16,7 @@ def method(request):
 
 @pytest.mark.parametrize('function', MULTIVARIATE + UNIVARIATE)
 def test_methods(function: Function, method: Minimizer):
-    x_0 = np.ones(shape=function.minimizer.shape) * 100
+    x_0 = np.ones(shape=function.minimizers[0].shape) * 100
     minimizer = method(function=function, x_0=x_0)
     minimizer.minimize()
     assert minimizer.has_converged()
