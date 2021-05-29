@@ -20,8 +20,8 @@ def test_delete_reports():
 
 @pytest.fixture(params=[Newton, 
                         QuasiNewton, 
-                        #SteepestDescent, 
-                        #ConjugateGradient
+                        SteepestDescent, 
+                        ConjugateGradient
                         ])
 def method(request):
     return request.param
