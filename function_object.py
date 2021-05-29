@@ -1,3 +1,4 @@
+from numbers import Number
 from typing import Callable, List
 import numpy as np
 from dataclasses import dataclass
@@ -11,6 +12,10 @@ class Function:
 
     def __call__(self, x: np.array):
         return self.f(x)
+
+    @property
+    def is_univariate(self) -> bool:
+        return isinstance(self.minimizers[0], Number)
 
 @dataclass
 class MatrixGrad:
