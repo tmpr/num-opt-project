@@ -14,6 +14,10 @@ pip install plotly
 pip install pytest
 ```
 
+# Grading info
+
+When I ran the testing script with the defined tolerances, all 10 examples passed the tests.
+
 ## Running the tests
 
 Navigate to this directory and call `pytest -vv`. It will return a neat
