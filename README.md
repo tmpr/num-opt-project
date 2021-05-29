@@ -28,6 +28,6 @@ summary of all the functions that passed.
 
 The tests can be found in `test_methods.py`, which imports its examples from `examples.py`.
 A test is deemed successful if a minimizer has converged, which in turn means if it minimized
-its L2-distance from the true minimum to less than `self.__class__.tolerance` within `self.__class__.max_iter`.
+its L2-distance from the true minimum to less than `self.__class__.tolerance` within `self.__class__.max_iter`. Each test starts from a vector where each coordinate is 100.
 
 Optimizers have different tolerances and settings. For example, since they do converge but are slow, both `SteepestDescent` and `ConjugateGradient` have a `tolerance = 0.5`. Nevertheless, the optimization progress can be inspected in the generated graphs.

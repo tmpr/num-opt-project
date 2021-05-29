@@ -33,7 +33,7 @@ def method(request):
 @pytest.mark.parametrize('function', UNI_BI_VARIATE + MULTIVARIATE)
 def test_methods(function: Function, method: Minimizer):
     x_0 = np.ones(
-        shape=function.minimizers[0].shape) * 3 if not function.is_univariate else 3
+        shape=function.minimizers[0].shape) * 100 if not function.is_univariate else 100
     minimizer = method(function=function, x_0=x_0)
     minimizer.minimize()
 
