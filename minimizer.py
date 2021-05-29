@@ -116,10 +116,11 @@ class NewtonMinimizer(Minimizer):
 
     @property
     def direction(self):
-        if not self.f.is_univariate:
-            return -np.linalg.inv(self.f.hessian(self.x)) @ self.f.gradient(self.x)
-        else:
-            return -1/self.f.hessian(self.x) * self.f.gradient(self.x)
+        return np.inner(self.inv, self.f.gradient(self.x))
+
+    @property
+    def inv(self):
+        return -1/self.f.hessian(self.x) if self.f.is_univariate else -np.linalg.inv(self.f.hessian(self.x))
 
 
 class QuasiNewtonMinimizer(Minimizer):
@@ -131,10 +132,7 @@ class QuasiNewtonMinimizer(Minimizer):
 
     @property
     def direction(self) -> np.array:
-        if not self.f.is_univariate:
-            return -self.H @ self.f.gradient(self.x)
-        else:
-            return -self.H * self.f.gradient(self.x)
+        return np.inner(-self.H, self.f.gradient(self.x))
 
     def step(self, step_length: float, direction: np.array) -> None:
         new_x = self.x + step_length*direction
