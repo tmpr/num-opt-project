@@ -24,4 +24,4 @@ The tests can be found in `test_methods.py`, which imports its examples from `ex
 A test is deemed successful if a minimizer has converged, which in turn means if it minimized
 its L2-distance from the true minimum to less than `self.__class__.tolerance` within `self.__class__.max_iter`.
 
-Optimizers have different tolerances and settings. For example, since they do converge but are slow, both `SteepestDescentMinimizer` and `ConjugateGradientMinimizer` have a `tolerance = 0.5`. Nevertheless, the optimization progress can be viewed in the generated graphs: Clearly we see that the minimizers approach the true minimizers.
+Optimizers have different tolerances and settings. For example, since they do converge but are slow, both `SteepestDescent` and `ConjugateGradient` have a `tolerance = 0.5`. Nevertheless, the optimization progress can be viewed in the generated graphs: Clearly we see that the minimizers approach the true minimizers.
