@@ -12,10 +12,14 @@ from numbers import Number
 
 def test_delete_reports():
     reports = Path("reports")
+    reports.mkdir(exist_ok=True)
+    (reports/'success').mkdir()
+    (reports/'fail').mkdir()
     rmtree(reports/'success')
     rmtree(reports/'fail')
     (reports/'success').mkdir()
     (reports/'fail').mkdir()
+
 
 
 @pytest.fixture(params=[Newton, 
