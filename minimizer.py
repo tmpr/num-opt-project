@@ -139,9 +139,7 @@ class QuasiNewton(Newton):
 
         s = new_x - self.x
         y = self.f.gradient(new_x) - self.f.gradient(self.x)
-
-        if not self.has_converged():
-            self.update_H(s, y)
+        self.update_H(s, y)
 
         self.x = new_x
         
