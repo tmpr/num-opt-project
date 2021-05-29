@@ -149,7 +149,7 @@ class QuasiNewton(Newton):
     def update_H(self, s: np.array, y: np.array) -> None:
         """Update H according to the SR1 method."""
 
-        difference = s - (self.H*y if self.f.is_univariate else self.H@y)
+        difference = s - np.inner(self.H, y)
         numerator = np.outer(difference, difference)
         denominator = np.inner(difference, y)
 
