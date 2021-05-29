@@ -160,8 +160,8 @@ class QuasiNewtonMinimizer(Minimizer):
 
 class ConjugateGradientMinimizer(Minimizer):
     step_search_tolerance = 100_000
-    max_iter = 10_000
-    tolerance = 1
+    max_iter = 40_000
+    tolerance = 0.5
     min_step = float('inf')
 
     def __init__(self, function: Function, x_0: np.array, c=0.5, step_decay=0.99):
@@ -184,10 +184,10 @@ class ConjugateGradientMinimizer(Minimizer):
 
 
 class SteepestDescentMinimizer(Minimizer):
-    tolerance = 1
+    tolerance = 0.5
     step_search_tolerance = 1000
-    max_iter = 10_000
-    momentum = 1
+    max_iter = 40_000
+    momentum = 0.6
 
     # We are veeery generous with Gradient Descent, as it is horribly slow.
     # However it is doing its job and continually gets closer to the 
@@ -208,4 +208,3 @@ class SteepestDescentMinimizer(Minimizer):
             momentum_term = self.__class__.momentum*(self.x - self.x_pre)
         self.x_pre = self.x
         self.x += step_length*direction - momentum_term
-
