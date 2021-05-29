@@ -112,18 +112,18 @@ class Minimizer:
         return self.distance <= self.__class__.tolerance
 
 
-class NewtonMinimizer(Minimizer):
+class Newton(Minimizer):
 
     @property
     def direction(self):
-        return np.inner(self.inv, self.f.gradient(self.x))
+        return np.inner(self.inv_H, self.f.gradient(self.x))
 
     @property
-    def inv(self):
+    def inv_H(self):
         return -1/self.f.hessian(self.x) if self.f.is_univariate else -np.linalg.inv(self.f.hessian(self.x))
 
 
-class QuasiNewtonMinimizer(Minimizer):
+class QuasiNewton(Newton):
 
     def __init__(self, function: Function, x_0: np.array, c=0.9, step_decay=0.95):
         super().__init__(function, x_0, c=c, step_decay=step_decay)
@@ -131,8 +131,8 @@ class QuasiNewtonMinimizer(Minimizer):
         self.H = -1/self.f.hessian(self.x) if self.f.is_univariate else -np.linalg.inv(self.f.hessian(self.x))
 
     @property
-    def direction(self) -> np.array:
-        return np.inner(-self.H, self.f.gradient(self.x))
+    def inv_H(self):
+        return -self.H
 
     def step(self, step_length: float, direction: np.array) -> None:
         new_x = self.x + step_length*direction
@@ -156,7 +156,7 @@ class QuasiNewtonMinimizer(Minimizer):
 
 
 
-class ConjugateGradientMinimizer(Minimizer):
+class ConjugateGradient(Minimizer):
     step_search_tolerance = 100_000
     max_iter = 40_000
     tolerance = 0.5
@@ -181,7 +181,7 @@ class ConjugateGradientMinimizer(Minimizer):
         return self._direction
 
 
-class SteepestDescentMinimizer(Minimizer):
+class SteepestDescent(Minimizer):
     tolerance = 0.5
     step_search_tolerance = 1000
     max_iter = 40_000

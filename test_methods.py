@@ -18,10 +18,10 @@ def test_delete_reports():
     (reports/'fail').mkdir()
 
 
-@pytest.fixture(params=[NewtonMinimizer, 
-                        QuasiNewtonMinimizer, 
-                        SteepestDescentMinimizer, 
-                        ConjugateGradientMinimizer
+@pytest.fixture(params=[Newton, 
+                        QuasiNewton, 
+                        #SteepestDescent, 
+                        #ConjugateGradient
                         ])
 def method(request):
     return request.param
