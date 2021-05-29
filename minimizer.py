@@ -15,6 +15,7 @@ from function_object import Function
 SUCCESS = Path('reports/success')
 FAIL = Path('reports/fail')
 
+
 class Minimizer:
     tolerance = 1e-7
     max_iter = 1000
@@ -24,7 +25,7 @@ class Minimizer:
     def __init__(self, function: Function, x_0: np.array, c=0.4, step_decay=0.8):
         self.f = function
         self.history = {
-            "L2 Distance to Min" : [],
+            "L2 Distance to Min": [],
             "Step Length": [],
             "Direction Magnitude": []
         }
@@ -39,14 +40,14 @@ class Minimizer:
             TimeoutError: If the tolerance is not achieved within the class-defined number of maximum iterations.
         """
         for i in range(self.__class__.max_iter):
-            
 
             direction = self.direction
             step_length = self.step_length(direction)
-            
+
             self.history["L2 Distance to Min"].append(float(self.distance))
             self.history["Step Length"].append(step_length)
-            self.history["Direction Magnitude"].append(np.linalg.norm(direction))
+            self.history["Direction Magnitude"].append(
+                np.linalg.norm(direction))
 
             if self.has_converged():
                 self.generate_analytics()
@@ -55,8 +56,8 @@ class Minimizer:
             self.step(step_length, direction)
 
         self.generate_analytics()
-        raise TimeoutError(f"Minimizer did not converge within {self.__class__.max_iter} steps. Distance: {self.distance}")
-
+        raise TimeoutError(
+            f"Minimizer did not converge within {self.__class__.max_iter} steps. Distance: {self.distance}")
 
     def step(self, step_length: float, direction: np.array) -> None:
         self.x += step_length * direction
@@ -64,12 +65,13 @@ class Minimizer:
     def generate_analytics(self) -> None:
         """Generate Plot to inspect optimization process."""
 
-        fig = px.line(data_frame=pd.DataFrame.from_dict(self.history), 
+        fig = px.line(data_frame=pd.DataFrame.from_dict(self.history),
                       title="Optimization History of "+self.__class__.__name__)
-        
+
         directory = SUCCESS if self.has_converged() else FAIL
 
-        fig.write_html(str(directory / (self.__class__.__name__ +  str(datetime.now()) + '.html')))
+        fig.write_html(
+            str(directory / (self.__class__.__name__ + str(datetime.now()) + '.html')))
 
     @property
     def distance(self) -> float:
@@ -92,9 +94,9 @@ class Minimizer:
         """
         x = self.x
         for _ in range(self.__class__.step_search_tolerance):
-        
+
             left = self.f(x + alpha*p)
-            right = self.f(x) + self.c * alpha *  np.dot(self.f.gradient(x), p)
+            right = self.f(x) + self.c * alpha * np.dot(self.f.gradient(x), p)
 
             if left <= right:
                 return alpha
@@ -128,7 +130,8 @@ class QuasiNewton(Newton):
     def __init__(self, function: Function, x_0: np.array, c=0.9, step_decay=0.95):
         super().__init__(function, x_0, c=c, step_decay=step_decay)
 
-        self.H = -1/self.f.hessian(self.x) if self.f.is_univariate else -np.linalg.inv(self.f.hessian(self.x))
+        self.H = -1/self.f.hessian(self.x) if self.f.is_univariate else - \
+            np.linalg.inv(self.f.hessian(self.x))
 
     @property
     def inv_H(self):
@@ -142,7 +145,7 @@ class QuasiNewton(Newton):
         self.update_H(s, y)
 
         self.x = new_x
-        
+
     def update_H(self, s: np.array, y: np.array) -> None:
         """Update H according to the SR1 method."""
 
@@ -151,7 +154,6 @@ class QuasiNewton(Newton):
         denominator = np.inner(difference, y)
 
         self.H = self.H + numerator/denominator
-
 
 
 class ConjugateGradient(Minimizer):
@@ -167,12 +169,11 @@ class ConjugateGradient(Minimizer):
     def step(self, step_length: float, direction: np.array) -> None:
         direction = self._direction
         grad = self.f.gradient(self.x)
-        
+
         self.x += step_length*direction
         new_grad = self.f.gradient(self.x)
         beta = np.inner(new_grad, new_grad - grad) / (np.linalg.norm(grad)**2)
         self._direction = -new_grad + beta * direction
-        
 
     @property
     def direction(self) -> np.array:
@@ -186,7 +187,7 @@ class SteepestDescent(Minimizer):
     momentum = 0.6
 
     # We are veeery generous with Gradient Descent, as it is horribly slow.
-    # However it is doing its job and continually gets closer to the 
+    # However it is doing its job and continually gets closer to the
     # minimum.
 
     def __init__(self, function: Function, x_0: np.array, c=0.9, step_decay=0.9):
