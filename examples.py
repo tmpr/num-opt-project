@@ -2,8 +2,7 @@ from math import cos, sin
 
 import numpy as np
 
-from function_object import (Function, MatrixConstant, MatrixFunction,
-                             MatrixGrad)
+from function_object import *
 
 np.random.seed(42)
 
