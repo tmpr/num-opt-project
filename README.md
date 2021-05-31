@@ -27,5 +27,8 @@ summary of all the functions that passed.
 ## Remarks
 
 The tests can be found in `test_methods.py`, which imports its examples from `examples.py`.
-A test is deemed successful if a minimizer has converged, which in turn means if it minimized
-its L2-distance from the true minimum to less than `self.__class__.tolerance` within `self.__class__.max_iter`. Each test starts from a vector where each coordinate is 1.
+A test is deemed successful if a minimizer has converged, which in turn means if it found
+an x at which the gradient is close to 0.
+
+If you want to see a plot of the optimization progress, the test-script produces an interactive plot
+you can open in a browser.
