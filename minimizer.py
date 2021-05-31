@@ -9,28 +9,23 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import plotly.express as px
+from numpy.lib.function_base import gradient
 
 from function_object import Function
 
-SUCCESS = Path('reports/success')
-FAIL = Path('reports/fail')
-
 
 class Minimizer:
-    tolerance = 1e-7
-    max_iter = 1000
-    step_search_tolerance = 10
-    min_step = 1e-3
+    tolerance = 1e-8
+    max_iter = 10_000
+    step_search_tolerance = 100
+    step_decay = 0.8
+    c = 0.4
 
-    def __init__(self, function: Function, x_0: np.array, c=0.4, step_decay=0.8):
+    def __init__(self, function: Function, x_0: np.array):
         self.f = function
         self.history = {
-            "L2 Distance to Min": [],
-            "Step Length": [],
-            "Direction Magnitude": []
+            "Gradient Norm": [],
         }
-        self.c = c
-        self.step_decay = step_decay
         self.x = x_0
 
     def minimize(self):
@@ -44,39 +39,23 @@ class Minimizer:
             direction = self.direction
             step_length = self.step_length(direction)
 
-            self.history["L2 Distance to Min"].append(float(self.distance))
-            self.history["Step Length"].append(step_length)
-            self.history["Direction Magnitude"].append(
-                np.linalg.norm(direction))
+            self.history["Gradient Norm"].append(self.gradient_norm)
 
             if self.has_converged():
-                self.generate_analytics()
                 return
 
             self.step(step_length, direction)
 
-        self.generate_analytics()
         raise TimeoutError(
-            f"Minimizer did not converge within {self.__class__.max_iter} steps. Distance: {self.distance}")
+            f"Minimizer did not converge within {self.__class__.max_iter} steps."
+            f"Distance: {self.distance}, Gradient Norm: {self.gradient_norm}")
 
     def step(self, step_length: float, direction: np.array) -> None:
         self.x += step_length * direction
 
-    def generate_analytics(self) -> None:
-        """Generate Plot to inspect optimization process."""
-
-        fig = px.line(data_frame=pd.DataFrame.from_dict(self.history),
-                      title="Optimization History of "+self.__class__.__name__)
-
-        directory = SUCCESS if self.has_converged() else FAIL
-
-        fig.write_html(
-            str(directory / (self.__class__.__name__ + str(datetime.now()) + '.html')))
-
     @property
-    def distance(self) -> float:
-        """Least distance of current x to one of the known minimizers."""
-        return min(np.linalg.norm(self.x - minimizer) for minimizer in self.f.minimizers)
+    def gradient_norm(self):
+        return np.linalg.norm(self.f.gradient(self.x))
 
     @property
     @abstractmethod
@@ -93,25 +72,26 @@ class Minimizer:
             float: Step length
         """
         x = self.x
+        c, step_decay = self.__class__.c, self.__class__.step_decay
         for _ in range(self.__class__.step_search_tolerance):
 
             left = self.f(x + alpha*p)
-            right = self.f(x) + self.c * alpha * np.dot(self.f.gradient(x), p)
+            right = self.f(x) + c * alpha * np.dot(self.f.gradient(x), p)
 
             if left <= right:
                 return alpha
             else:
-                alpha *= self.step_decay
+                alpha *= step_decay
 
-        return max(alpha, self.__class__.min_step)
+        return alpha
 
     def has_converged(self) -> bool:
         """Check if optimizer has converged.
 
         Returns:
-            bool: Whether or not x is very close to minimizer.
+            bool: Whether or not gradient at current x is close to zero.
         """
-        return self.distance <= self.__class__.tolerance
+        return self.gradient_norm <= self.__class__.tolerance
 
 
 class Newton(Minimizer):
@@ -127,11 +107,13 @@ class Newton(Minimizer):
 
 class QuasiNewton(Newton):
 
-    def __init__(self, function: Function, x_0: np.array, c=0.9, step_decay=0.95):
-        super().__init__(function, x_0, c=c, step_decay=step_decay)
+    def __init__(self, function: Function, x_0: np.array):
+        super().__init__(function, x_0)
 
-        self.H = -1/self.f.hessian(self.x) if self.f.is_univariate else - \
-            np.linalg.inv(self.f.hessian(self.x))
+        if self.f.is_univariate:
+            self.H = -1/self.f.hessian(self.x)
+        else:
+            self.H = np.linalg.inv(self.f.hessian(self.x))
 
     @property
     def inv_H(self):
@@ -158,12 +140,11 @@ class QuasiNewton(Newton):
 
 class ConjugateGradient(Minimizer):
     step_search_tolerance = 100_000
-    max_iter = 40_000
-    tolerance = 0.5
+    tolerance = 1e-5
     min_step = float('inf')
 
-    def __init__(self, function: Function, x_0: np.array, c=0.5, step_decay=0.99):
-        super().__init__(function, x_0, c=c, step_decay=step_decay)
+    def __init__(self, function: Function, x_0: np.array):
+        super().__init__(function, x_0)
         self._direction = -self.f.gradient(x_0)
 
     def step(self, step_length: float, direction: np.array) -> None:
@@ -181,27 +162,9 @@ class ConjugateGradient(Minimizer):
 
 
 class SteepestDescent(Minimizer):
-    tolerance = 0.5
-    step_search_tolerance = 1000
-    max_iter = 40_000
-    momentum = 0.6
-
-    # We are veeery generous with Gradient Descent, as it is horribly slow.
-    # However it is doing its job and continually gets closer to the
-    # minimum.
-
-    def __init__(self, function: Function, x_0: np.array, c=0.9, step_decay=0.9):
-        super().__init__(function, x_0, c=c, step_decay=step_decay)
-        self.x_pre = None
+    tolerance = 0.01
+    max_iter = 100_000
 
     @property
     def direction(self) -> np.array:
         return -self.f.gradient(self.x)
-
-    def step(self, step_length: float, direction: np.array) -> None:
-        if self.x_pre is None:
-            momentum_term = 0
-        else:
-            momentum_term = self.__class__.momentum*(self.x - self.x_pre)
-        self.x_pre = self.x
-        self.x += step_length*direction - momentum_term

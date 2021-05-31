@@ -1,6 +1,9 @@
+from math import cos, sin
+
 import numpy as np
-from function_object import Function, MatrixFunction, MatrixGrad, MatrixConstant
-from math import sin, cos
+
+from function_object import (Function, MatrixConstant, MatrixFunction,
+                             MatrixGrad)
 
 np.random.seed(42)
 
@@ -38,13 +41,18 @@ UNI_BI_VARIATE = [
 ]
 
 GENERATING_MATRICES = [
-    np.random.uniform(10, 100, size=(n, n))*10**9 for n in range(10, 20, 2)
+    np.random.normal(size=(n, n)) for n in range(10, 20, 2)
 ]
 
 POS_DEF_MATRICES = [X.T @ X for X in GENERATING_MATRICES]
 
 VECTORS = [np.random.uniform(-2, 2, size=len(matrix))
            for matrix in POS_DEF_MATRICES]
+
+for matrix in POS_DEF_MATRICES:
+    if not all(np.linalg.eigvals(matrix)):
+        raise ValueError("Non-definite matrix.")
+
 
 BEES = [A @ x for A, x in zip(POS_DEF_MATRICES, VECTORS)]
 

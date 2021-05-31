@@ -1,7 +1,8 @@
+from dataclasses import dataclass
 from numbers import Number
 from typing import Callable, List
+
 import numpy as np
-from dataclasses import dataclass
 
 
 @dataclass
@@ -25,7 +26,7 @@ class MatrixGrad:
     b: np.array
 
     def __call__(self, x: np.array):
-        return self.A @ x - self.b
+        return (self.A @ x) - self.b
 
 
 @dataclass
@@ -34,7 +35,7 @@ class MatrixFunction:
     b: np.array
 
     def __call__(self, x: np.array):
-        return 1/2 * x.T @ self.A @ x - self.b@x
+        return 1/2 * np.inner(x, self.A @ x) - np.inner(self.b, x)
 
 
 @dataclass
