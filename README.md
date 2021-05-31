@@ -23,6 +23,8 @@ When I ran the testing script with the defined tolerances, all 10 examples passe
 Navigate to this directory and call `pytest -vv`. It will return a neat
 summary of all the functions that passed.
 
+If this does not work, try out `python -m pytest -vv`, if there are problems with the path.
+
 
 ## Remarks
 
