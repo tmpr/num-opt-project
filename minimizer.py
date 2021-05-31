@@ -162,7 +162,7 @@ class ConjugateGradient(Minimizer):
 
 
 class SteepestDescent(Minimizer):
-    tolerance = 0.01
+    tolerance = 0.0001
     max_iter = 100_000
 
     @property
