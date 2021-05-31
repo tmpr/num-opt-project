@@ -3,13 +3,8 @@ File containing all 4 of the minimizers and the `Minimizer` base-class.
 """
 
 from abc import abstractmethod
-from datetime import datetime
-from pathlib import Path
 
 import numpy as np
-import pandas as pd
-import plotly.express as px
-from numpy.lib.function_base import gradient
 
 from function_object import Function
 
