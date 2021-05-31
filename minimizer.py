@@ -43,7 +43,7 @@ class Minimizer:
 
         raise TimeoutError(
             f"Minimizer did not converge within {self.__class__.max_iter} steps."
-            f"Distance: {self.distance}, Gradient Norm: {self.gradient_norm}")
+            f"Gradient Norm: {self.gradient_norm}")
 
     def step(self, step_length: float, direction: np.array) -> None:
         self.x += step_length * direction
