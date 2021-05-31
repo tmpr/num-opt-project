@@ -8,7 +8,6 @@ Clearly, you will need Python 🐍. Further, please install the following
 by entering the following commands into your shell:
 
 ```
-pip install pandas
 pip install numpy
 pip install plotly
 pip install pytest
