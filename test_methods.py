@@ -1,3 +1,4 @@
+from operator import imod
 import pytest
 import numpy as np
 
@@ -6,6 +7,7 @@ from minimizer import *
 from shutil import rmtree
 from pathlib import Path
 import plotly.express as px
+from datetime import datetime
 
 REPORTS = Path('reports')
 SUCCESS = REPORTS / 'success'
@@ -43,8 +45,7 @@ def test_methods(function: Function, method: Minimizer):
 def generate_analytics(minimizer: Minimizer) -> None:
     """Generate Plot to inspect optimization process."""
 
-    fig = px.line(data_frame=pd.DataFrame.from_dict(minimizer.history),
-                  title="Optimization History of "+minimizer.__class__.__name__)
+    fig = px.line(data_frame=minimizer.history, title="Optimization History of "+minimizer.__class__.__name__)
 
     directory = SUCCESS if minimizer.has_converged() else FAIL
 
