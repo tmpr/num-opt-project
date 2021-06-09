@@ -106,9 +106,9 @@ class QuasiNewton(Newton):
         super().__init__(function, x_0)
 
         if self.f.is_univariate:
-            self.H = -1/self.f.hessian(self.x)
+            self.H = 0.5
         else:
-            self.H = np.linalg.inv(self.f.hessian(self.x))
+            self.H = np.eye(self.f.minimizers[0].shape[0]) * 0.5
 
     @property
     def inv_H(self):
