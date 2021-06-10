@@ -16,7 +16,7 @@ class Minimizer:
     step_decay = 0.8
     c = 0.4
 
-    def __init__(self, function: Function, x_0: np.array):
+    def __init__(self, function: Function, x_0: np.ndarray):
         self.f = function
         self.history = {
             "Gradient Norm": [],
@@ -45,7 +45,7 @@ class Minimizer:
             f"Minimizer did not converge within {self.__class__.max_iter} steps."
             f"Gradient Norm: {self.gradient_norm}")
 
-    def step(self, step_length: float, direction: np.array) -> None:
+    def step(self, step_length: float, direction: np.ndarray) -> None:
         self.x += step_length * direction
 
     @property
@@ -54,9 +54,9 @@ class Minimizer:
 
     @property
     @abstractmethod
-    def direction(self) -> np.array: pass
+    def direction(self) -> np.ndarray: pass
 
-    def step_length(self, p: np.array, alpha=1.) -> float:
+    def step_length(self, p: np.ndarray, alpha=1.) -> float:
         """Compute step length according to the book.
 
         Args:
@@ -102,7 +102,7 @@ class Newton(Minimizer):
 
 class QuasiNewton(Newton):
 
-    def __init__(self, function: Function, x_0: np.array):
+    def __init__(self, function: Function, x_0: np.ndarray):
         super().__init__(function, x_0)
 
         if self.f.is_univariate:
@@ -114,7 +114,7 @@ class QuasiNewton(Newton):
     def inv_H(self):
         return -self.H
 
-    def step(self, step_length: float, direction: np.array) -> None:
+    def step(self, step_length: float, direction: np.ndarray) -> None:
         new_x = self.x + step_length*direction
 
         s = new_x - self.x
@@ -123,7 +123,7 @@ class QuasiNewton(Newton):
 
         self.x = new_x
 
-    def update_H(self, s: np.array, y: np.array) -> None:
+    def update_H(self, s: np.ndarray, y: np.ndarray) -> None:
         """Update H according to the SR1 method."""
 
         difference = s - np.inner(self.H, y)
@@ -138,11 +138,11 @@ class ConjugateGradient(Minimizer):
     tolerance = 1e-5
     min_step = float('inf')
 
-    def __init__(self, function: Function, x_0: np.array):
+    def __init__(self, function: Function, x_0: np.ndarray):
         super().__init__(function, x_0)
         self._direction = -self.f.gradient(x_0)
 
-    def step(self, step_length: float, direction: np.array) -> None:
+    def step(self, step_length: float, direction: np.ndarray) -> None:
         direction = self._direction
         grad = self.f.gradient(self.x)
 
@@ -152,7 +152,7 @@ class ConjugateGradient(Minimizer):
         self._direction = -new_grad + beta * direction
 
     @property
-    def direction(self) -> np.array:
+    def direction(self) -> np.ndarray:
         return self._direction
 
 
@@ -161,5 +161,5 @@ class SteepestDescent(Minimizer):
     max_iter = 100_000
 
     @property
-    def direction(self) -> np.array:
+    def direction(self) -> np.ndarray:
         return -self.f.gradient(self.x)

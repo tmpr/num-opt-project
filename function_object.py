@@ -10,9 +10,9 @@ class Function:
     f: Callable
     gradient: Callable
     hessian: Callable
-    minimizers: List[np.array]
+    minimizers: List[np.ndarray]
 
-    def __call__(self, x: np.array):
+    def __call__(self, x: np.ndarray):
         return self.f(x)
 
     @property
@@ -22,25 +22,25 @@ class Function:
 
 @dataclass
 class MatrixGrad:
-    A: np.array
-    b: np.array
+    A: np.ndarray
+    b: np.ndarray
 
-    def __call__(self, x: np.array):
+    def __call__(self, x: np.ndarray):
         return (self.A @ x) - self.b
 
 
 @dataclass
 class MatrixFunction:
-    A: np.array
-    b: np.array
+    A: np.ndarray
+    b: np.ndarray
 
-    def __call__(self, x: np.array):
+    def __call__(self, x: np.ndarray):
         return 1/2 * np.inner(x, self.A @ x) - np.inner(self.b, x)
 
 
 @dataclass
 class MatrixConstant:
-    A: np.array
+    A: np.ndarray
 
-    def __call__(self, x: np.array):
+    def __call__(self, x: np.ndarray):
         return self.A
